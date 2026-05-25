@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import './App.css';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import Contact from './components/Contact';
 
+import slika_logo from './slika_logo.jpg';
 import buket4 from './slike/buket4.jpg';
 import buket6 from './slike/buket6.jpg';
 import buket9 from './slike/buket9.jpg';
@@ -160,19 +162,22 @@ const productCards = [
   }
 ];
 
-function HomeContent() {
+function HomeContent({ onSelectPage }) {
   return (
     <>
       <section className="hero" id="home">
-        <div className="hero-text">
-          <p className="eyebrow">Dobrodošli u cvećaru</p>
-          <h1>
-            Bloom <span>&amp; gift shop</span>
-          </h1>
-          <p>
-            Sveže cveće, unikatni pokloni i detalji za svaku priliku.
-            Pregledajte naš asortiman i naručite brzo i jednostavno.
-          </p>
+        <div className="hero-container">
+          <div className="hero-text">
+            <p className="eyebrow">Dobro došli u Cvećaru & Gift Shop</p>
+            <h1>Bloom</h1>
+            <p>
+              Sveže cveće, unikatni pokloni i detalji za svaku priliku.
+              Pregledajte naš asortiman i naručite brzo i jednostavno.
+            </p>
+          </div>
+          <div className="hero-image">
+            <img src={slika_logo} alt="Bloom logo" />
+          </div>
         </div>
       </section>
 
@@ -184,7 +189,12 @@ function HomeContent() {
 
         <div className="category-grid">
           {featuredCategories.map((category) => (
-            <article key={category.title} className="category-card">
+            <article
+              key={category.title}
+              className="category-card"
+              onClick={() => onSelectPage && onSelectPage('products')}
+              style={{ cursor: 'pointer' }}
+            >
               <div className="category-image-wrap">
                 <img
                   className="category-image"
@@ -250,15 +260,33 @@ function AboutContent() {
           pažljivo aranžiranih buketa za sve prilike. Nudimo sveže cveće,
           unikatne poklone i usluge dostave.
         </p>
+        <p>Kompletan asortiman naših proizvoda ćete pronaći u našoj onlajn prodavnici, 
+          a osim buketa, cvetnih aranžmana, bidermajera, saksijskog i rezanog cveća, za 
+          Vas pravimo i unikatne poklon aranžmane! Nudimo i bogat izbor balona punjenih helijumom!
+        </p>
         <p>
           Naš tim kombinuje kreativnost i iskustvo kako bi svaki aranžman
           bio poseban. Hvala što nas podržavate — radujemo se da vam
           pomognemo da obeležite važne trenutke.
         </p>
       </div>
+
+      <h2>Zašto smo pravi izbor</h2>
+      <div className="about-body">
+        <p>
+          Naš tim vredno radi na ispunjavanju Vaših želja i takođe pruža uslugu dostave na 
+          kućnu adresu u Novom Sadu i okolini!<br></br>
+          Dostavljanje aranžmana se zakazuje blagovremeno ranije, a Vašu porudžbinu možete 
+          izvršiti lično u prodavnici, putem telefona ili društvenih mreža. 
+          Vaše zadovoljstvo je naše najveće priznanje, 
+          te nastojimo da opravdamo Vaše dugogodišnje poverenje i u budućnosti!
+        </p>
+      </div>
     </section>
   );
 }
+
+
 
 function App() {
   const [page, setPage] = useState('home');
@@ -268,9 +296,10 @@ function App() {
       <Navbar activePage={page} onSelectPage={setPage} />
 
       <main className="content">
-        {page === 'home' && <HomeContent />}
+        {page === 'home' && <HomeContent onSelectPage={setPage} />}
         {page === 'products' && <ProductsContent />}
         {page === 'about' && <AboutContent />}
+        {page === 'contact' && <Contact />}
       </main>
 
       <Footer />

@@ -17,6 +17,18 @@ const Footer = () => {
           <h4>Kontakt</h4>
           <p>Telefon: +381 21 123 456</p>
         </div>
+        <div className="footer-section">
+          <h4>Email</h4>
+          <p>info@bloomcvecara.rs</p>
+        </div>
+        <div className="footer-section">
+          <h4>Facebook</h4>
+          <p>@BloomCvecara</p>
+        </div>
+        <div className="footer-section">
+          <h4>Instagram</h4>
+          <p>@BloomCvecara</p>
+        </div>
       </div>
     </footer>
   );

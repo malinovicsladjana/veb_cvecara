@@ -3,6 +3,7 @@ import './App.css';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Contact from './components/Contact';
+import Admin from './components/Admin';
 
 import slika_logo from './slika_logo.jpg';
 import buket4 from './slike/buket4.jpg';
@@ -31,138 +32,156 @@ const featuredCategories = [
   { title: 'Saksijsko cveće', image: saksijskocvece },
   { title: 'Poklon aranžmani', image: poklonaranzmani },
   { title: 'Baloni sa helijumom', image: baloni }
-];
+];//lista kategorija koje se izdvajaju na početnoj strani
 
-const productCards = [
+const productCards = [ // lista proizvoda koji se prikazuju na stranici proizvoda
   {
     id: 'buket-1',
     title: 'Buket 1',
     category: 'Buketi',
     image: buket4,
-    price: '2.999 RSD'
+    price: '2.999 RSD',
+    inStock: true,
   },
   {
     id: 'buket-2',
     title: 'Buket 2',
     category: 'Buketi',
     image: buket6,
-    price: '3.299 RSD'
+    price: '3.299 RSD',
+    inStock: false,
   },
   {
     id: 'buket-3',
     title: 'Buket 3',
     category: 'Buketi',
     image: buket9,
-    price: '3.499 RSD'
+    price: '3.499 RSD',
+    inStock: true,
   },
   {
     id: 'bidermajer-1',
     title: 'Bidermajer 1',
     category: 'Bidermajeri',
     image: bidermajer5,
-    price: '3.499 RSD'
+    price: '3.499 RSD',
+    inStock: false,
   },
   {
     id: 'bidermajer-2',
     title: 'Bidermajer 2',
     category: 'Bidermajeri',
     image: bidermajer6,
-    price: '3.799 RSD'
+    price: '3.799 RSD',
+    inStock: true,
   },
   {
     id: 'bidermajer-3',
     title: 'Bidermajer 3',
     category: 'Bidermajeri',
     image: bidermajer7,
-    price: '4.099 RSD'
+    price: '4.099 RSD',
+    inStock: false,
   },
   {
     id: 'aranžman-1',
     title: 'Aranžman 1',
     category: 'Cvetni aranžmani',
     image: cvetni4,
-    price: '3.199 RSD'
+    price: '3.199 RSD',
+    inStock: true,
   },
   {
     id: 'aranžman-2',
     title: 'Aranžman 2',
     category: 'Cvetni aranžmani',
     image: cvetni5,
-    price: '3.499 RSD'
+    price: '3.499 RSD',
+    inStock: false,
   },
   {
     id: 'aranžman-3',
     title: 'Aranžman 3',
     category: 'Cvetni aranžmani',
     image: cvetni8,
-    price: '3.799 RSD'
+    price: '3.799 RSD',
+    inStock: true,
   },
   {
     id: 'saksijsko-1',
     title: 'Saksijsko 1',
     category: 'Saksijsko cveće',
     image: saksijskocvece,
-    price: '2.799 RSD'
+    price: '2.799 RSD',
+    inStock: false,
   },
   {
     id: 'saksijsko-2',
     title: 'Saksijsko 2',
     category: 'Saksijsko cveće',
     image: saksija3,
-    price: '2.999 RSD'
+    price: '2.999 RSD',
+    inStock: true,
   },
   {
     id: 'saksijsko-3',
     title: 'Saksijsko 3',
     category: 'Saksijsko cveće',
     image: saksija8,
-    price: '3.199 RSD'
+    price: '3.199 RSD',
+    inStock: false,
   },
   {
     id: 'poklon-1',
     title: 'Poklon aranžman 1',
     category: 'Poklon aranžmani',
     image: poklonaranzmani,
-    price: '4.199 RSD'
+    price: '4.199 RSD',
+    inStock: true,
   },
   {
     id: 'poklon-2',
     title: 'Poklon aranžman 2',
     category: 'Poklon aranžmani',
     image: poklon3,
-    price: '4.499 RSD'
+    price: '4.499 RSD',
+    inStock: false,
   },
   {
     id: 'poklon-3',
     title: 'Poklon aranžman 3',
     category: 'Poklon aranžmani',
     image: poklon7,
-    price: '4.799 RSD'
+    price: '4.799 RSD',
+    inStock: true,
   },
   {
     id: 'balon-1',
     title: 'Balon 1',
     category: 'Baloni sa helijumom',
     image: baloni,
-    price: '1.499 RSD'
+    price: '1.499 RSD',
+    inStock: false,
   },
   {
     id: 'balon-2',
     title: 'Balon 2',
     category: 'Baloni sa helijumom',
     image: baloni2,
-    price: '1.699 RSD'
+    price: '1.699 RSD',
+    inStock: true,
   },
   {
     id: 'balon-3',
     title: 'Balon 3',
     category: 'Baloni sa helijumom',
     image: baloni4,
-    price: '1.899 RSD'
+    price: '1.899 RSD',
+    inStock: false,
   }
 ];
 
-function HomeContent({ onSelectPage }) {
+function HomeContent({ onSelectPage }) { //pocetna stranica
   return (
     <>
       <section className="hero" id="home">
@@ -184,7 +203,7 @@ function HomeContent({ onSelectPage }) {
       <section className="featured" id="featured">
         <div className="section-headline">
           <p className="eyebrow">Izdvajamo iz ponude!</p>
-          <h2>Najlepši predlozi za vas</h2>
+          <h2>Najlepši predlozi za Vas</h2>
         </div>
 
         <div className="category-grid">
@@ -211,8 +230,15 @@ function HomeContent({ onSelectPage }) {
   );
 }
 
-function ProductsContent({ onAddToCart, isLoggedIn, onOpenAuth, reviews, currentUser, onSubmitRating }) {
-  return (
+function ProductsContent({ onAddToCart, isLoggedIn, onOpenAuth, reviews, currentUser, onSubmitRating, products }) {
+  const [quantities, setQuantities] = useState({});
+
+  const handleQtyChange = (id, value) => {
+    const qty = Math.max(1, Number(value) || 1);
+    setQuantities((prev) => ({ ...prev, [id]: qty }));
+  };
+
+  return ( //prikaz proizvoda na stranici proizvoda, zvezdice za ocenjivanje i dugme za dodavanje u korpu
     <section className="products-page">
       <div className="section-headline">
         <p className="eyebrow">Proizvodi</p>
@@ -220,7 +246,7 @@ function ProductsContent({ onAddToCart, isLoggedIn, onOpenAuth, reviews, current
       </div>
 
       <div className="product-grid">
-        {productCards.map((product) => {
+        {products.map((product) => {
           const productReview = reviews[product.id] || { count: 0, total: 0, ratings: {} };
           const averageRating = productReview.count
             ? Math.round(productReview.total / productReview.count)
@@ -241,14 +267,31 @@ function ProductsContent({ onAddToCart, isLoggedIn, onOpenAuth, reviews, current
                 <p className="product-category">{product.category}</p>
                 <div className="product-footer">
                   <span className="product-price">{product.price}</span>
-                  <button
-                    className={`add-to-cart-btn ${!isLoggedIn ? 'disabled' : ''}`}
-                    type="button"
-                    disabled={!isLoggedIn}
-                    onClick={() => onAddToCart(product)}
-                  >
-                    {isLoggedIn ? 'Dodaj u korpu' : 'Prijavite se za korpu'}
-                  </button>
+                  <div className="qty-and-add">
+                    <label className="qty-label">
+                      Količina (max 5)
+                      <input
+                        type="number"
+                        min="1"
+                        max="5"
+                        value={quantities[product.id] || 1}
+                        onChange={(e) => handleQtyChange(product.id, e.target.value)}
+                        className="qty-input"
+                      />
+                    </label>
+                    <button
+                      className={`add-to-cart-btn ${!isLoggedIn || !product.inStock ? 'disabled' : ''}`}
+                      type="button"
+                      disabled={!isLoggedIn || !product.inStock}
+                      onClick={() => onAddToCart(product, quantities[product.id] || 1)}
+                    >
+                      {product.inStock
+                        ? isLoggedIn
+                          ? 'Dodaj u korpu'
+                          : 'Prijavite se za korpu'
+                        : 'Nije na stanju'}
+                    </button>
+                  </div>
                 </div>
                 {!isLoggedIn && (
                   <div className="cart-login-note">
@@ -310,8 +353,8 @@ function ProductsContent({ onAddToCart, isLoggedIn, onOpenAuth, reviews, current
   );
 }
 
-function CartContent({ cartItems, onRemoveItem, onClearCart, currentUser, onOpenAuth }) {
-  if (!currentUser) {
+function CartContent({ cartItems, onRemoveItem, onClearCart, currentUser, onOpenAuth, onChoosePayment, isChoosingPayment, onConfirmPayment, onCancelPayment, checkoutMessage }) {
+  if (!currentUser) { //stranica sa korpom
     return (
       <section className="cart-page">
         <div className="section-headline">
@@ -380,9 +423,34 @@ function CartContent({ cartItems, onRemoveItem, onClearCart, currentUser, onOpen
             <p>
               Ukupno: <strong>{formattedTotal} RSD</strong>
             </p>
-            <button className="clear-cart-btn" type="button" onClick={onClearCart}>
-              Isprazni korpu
-            </button>
+            <div className="cart-summary-actions">
+              <button className="clear-cart-btn" type="button" onClick={onClearCart}>
+                Isprazni korpu
+              </button>
+              {currentUser && (
+                isChoosingPayment ? (
+                  <div className="payment-method-box">
+                    <p>Izaberite način plaćanja:</p>
+                    <div className="payment-method-buttons">
+                      <button className="auth-submit" type="button" onClick={() => onConfirmPayment('pouzece')}>
+                        Pouzećem
+                      </button>
+                      <button className="auth-submit" type="button" onClick={() => onConfirmPayment('paypal')}>
+                        PayPal
+                      </button>
+                      <button className="clear-cart-btn" type="button" onClick={onCancelPayment}>
+                        Otkaži
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button className="auth-submit" type="button" onClick={onChoosePayment}>
+                    Poruči
+                  </button>
+                )
+              )}
+            </div>
+            {checkoutMessage && <div className="auth-message auth-success">{checkoutMessage}</div>}
           </div>
         </>
       )}
@@ -390,7 +458,7 @@ function CartContent({ cartItems, onRemoveItem, onClearCart, currentUser, onOpen
   );
 }
 
-function AboutContent() {
+function AboutContent() { //info stranica
   return (
     <section className="about-page">
       <div className="section-headline">
@@ -432,7 +500,7 @@ function AboutContent() {
 
 
 
-function AuthForm({ mode, onSwitchMode, onClose, onLogin, onRegister }) {
+function AuthForm({ mode, onSwitchMode, onClose, onLogin, onRegister }) { //prozor za prijavu ili registraciju. proverava da li su polja popunjena i da li je lozinka duža od 6 slova
   const isLogin = mode === 'login';
   const [values, setValues] = useState({
     firstName: '',
@@ -596,10 +664,35 @@ function AuthForm({ mode, onSwitchMode, onClose, onLogin, onRegister }) {
 function App() {
   const [page, setPage] = useState('home');
   const [authMode, setAuthMode] = useState(null);
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState([
+    {
+      firstName: 'Admin',
+      lastName: 'Bloom',
+      email: 'admin@admin.com',
+      password: 'admin123',
+      isAdmin: true,
+    },
+  ]);
   const [currentUser, setCurrentUser] = useState(null);
+  const [products, setProducts] = useState(productCards);
   const [cartItems, setCartItems] = useState([]);
   const [reviews, setReviews] = useState({});
+  const [orders, setOrders] = useState([]);
+  const [checkoutMessage, setCheckoutMessage] = useState('');
+  const [isChoosingPayment, setIsChoosingPayment] = useState(false);
+  const [contactValues, setContactValues] = useState({
+    firstName: '',
+    lastName: '',
+    deliveryAddress: '',
+    phone: '',
+    email: '',
+    note: '',
+    deliveryTime: '2',
+    paymentMethod: '',
+    cardNumber: '',
+    cardExpiry: '',
+    cardCVC: '',
+  });
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const isLoggedIn = Boolean(currentUser);
@@ -611,6 +704,9 @@ function App() {
     }
 
     setCurrentUser(user);
+    if (user.isAdmin) {
+      setPage('admin');
+    }
     return { success: true, message: 'Uspešno ste se prijavili.' };
   };
 
@@ -626,6 +722,7 @@ function App() {
       lastName,
       email: normalizedEmail,
       password,
+      isAdmin: false,
     };
 
     setUsers((prev) => [...prev, newUser]);
@@ -639,23 +736,30 @@ function App() {
     setPage('home');
   };
 
-  const handleAddToCart = (product) => {
+  const handleAddToCart = (product, qty = 1) => {
     if (!isLoggedIn) {
       setAuthMode('login');
       return;
     }
 
+    if (!product.inStock) {
+      return;
+    }
+
+    const quantityToAdd = Math.max(1, Math.min(5, Number(qty) || 1));
+
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.id === product.id);
       if (existingItem) {
+        const newQty = Math.min(5, existingItem.quantity + quantityToAdd);
         return prevItems.map((item) =>
           item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
+            ? { ...item, quantity: newQty }
             : item
         );
       }
 
-      return [...prevItems, { ...product, quantity: 1 }];
+      return [...prevItems, { ...product, quantity: quantityToAdd }];
     });
     setPage('cart');
   };
@@ -666,6 +770,46 @@ function App() {
 
   const handleClearCart = () => {
     setCartItems([]);
+  };
+
+  const handleCheckout = (paymentMethod) => {
+    if (!currentUser || cartItems.length === 0) {
+      return;
+    }
+
+    if (!paymentMethod) {
+      setIsChoosingPayment(true);
+      setCheckoutMessage('');
+      return;
+    }
+
+    const nextContactValues = {
+      ...contactValues,
+      firstName: currentUser.firstName || '',
+      lastName: currentUser.lastName || '',
+      email: currentUser.email || '',
+      note: `Izabrali ste ${
+        paymentMethod === 'paypal' ? 'PayPal' : 'pouzećem'
+      } kao način plaćanja.`,
+      paymentMethod,
+    };
+
+    setContactValues(nextContactValues);
+    setIsChoosingPayment(false);
+    setCheckoutMessage(
+      `Molimo potvrdite vaše podatke u kontakt formi za plaćanje ${
+        paymentMethod === 'paypal' ? 'PayPal' : 'pouzećem'
+      }.`
+    );
+    setPage('contact');
+  };
+
+  const handleContactChange = (update) => {
+    setContactValues((prev) => ({ ...prev, ...update }));
+  };
+
+  const handleCancelPayment = () => {
+    setIsChoosingPayment(false);
   };
 
   const handleSubmitRating = (productId, rating) => {
@@ -696,6 +840,25 @@ function App() {
     });
   };
 
+  const handleCreateProduct = (newProduct) => {
+    setProducts((prev) => [
+      { ...newProduct, id: `product-${Date.now()}` },
+      ...prev,
+    ]);
+  };
+
+  const handleUpdateProduct = (updatedProduct) => {
+    setProducts((prev) => prev.map((item) => (item.id === updatedProduct.id ? updatedProduct : item)));
+  };
+
+  const handleDeleteProduct = (productId) => {
+    setProducts((prev) => prev.filter((item) => item.id !== productId));
+  };
+
+  const handleUpdateOrderStatus = (orderId, status) => {
+    setOrders((prev) => prev.map((order) => (order.id === orderId ? { ...order, status } : order)));
+  };
+
   return (
     <div className="app-shell">
       <Navbar
@@ -717,10 +880,11 @@ function App() {
             reviews={reviews}
             currentUser={currentUser}
             onSubmitRating={handleSubmitRating}
+            products={products}
           />
         )}
         {page === 'about' && <AboutContent />}
-        {page === 'contact' && <Contact />}
+        {page === 'contact' && <Contact contactValues={contactValues} onContactChange={handleContactChange} />}
         {page === 'cart' && (
           <CartContent
             cartItems={cartItems}
@@ -728,7 +892,29 @@ function App() {
             onClearCart={handleClearCart}
             currentUser={currentUser}
             onOpenAuth={setAuthMode}
+            onChoosePayment={() => setIsChoosingPayment(true)}
+            isChoosingPayment={isChoosingPayment}
+            onConfirmPayment={handleCheckout}
+            onCancelPayment={handleCancelPayment}
+            checkoutMessage={checkoutMessage}
           />
+        )}
+        {page === 'admin' && currentUser?.isAdmin && (
+          <Admin
+            products={products}
+            orders={orders}
+            users={users}
+            onCreateProduct={handleCreateProduct}
+            onUpdateProduct={handleUpdateProduct}
+            onDeleteProduct={handleDeleteProduct}
+            onUpdateOrderStatus={handleUpdateOrderStatus}
+          />
+        )}
+        {page === 'admin' && !currentUser?.isAdmin && (
+          <section className="admin-unauthorized">
+            <h2>Nemate ovlašćenja za pristup administratorskom delu.</h2>
+            <p>Prijavite se kao administrator da biste nastavili.</p>
+          </section>
         )}
         {authMode && (
           <AuthForm

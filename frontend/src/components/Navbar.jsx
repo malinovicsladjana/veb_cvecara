@@ -56,6 +56,18 @@ const Navbar = ({ activePage, onSelectPage, onOpenAuth, cartCount, currentUser, 
           >
             Kontakt
           </a>
+          {currentUser?.isAdmin && (
+            <a
+              href="#admin"
+              className={activePage === 'admin' ? 'active' : ''}
+              onClick={(e) => {
+                e.preventDefault();
+                onSelectPage('admin');
+              }}
+            >
+              Admin
+            </a>
+          )}
         </nav>
 
         <div className="navbar-actions">

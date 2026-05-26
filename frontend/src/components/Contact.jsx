@@ -1,19 +1,25 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-const Contact = () => {
-  const [formState, setFormState] = useState({
-    firstName: '',
-    lastName: '',
-    deliveryAddress: '',
-    phone: '',
-    email: '',
-    note: '',
-    deliveryTime: '2'
-  });
+const defaultContactValues = {
+  firstName: '',
+  lastName: '',
+  deliveryAddress: '',
+  phone: '',
+  email: '',
+  note: '',
+  deliveryTime: '2',
+  paymentMethod: '',
+  cardNumber: '',
+  cardExpiry: '',
+  cardCVC: '',
+};
+
+const Contact = ({ contactValues = defaultContactValues, onContactChange }) => {
+  const formState = { ...defaultContactValues, ...contactValues };
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    setFormState((prev) => ({ ...prev, [name]: value }));
+    onContactChange?.({ [name]: value });
   };
 
   const handleSubmit = (event) => {
@@ -30,15 +36,31 @@ const Contact = () => {
       return;
     }
 
+    if (formState.paymentMethod === 'paypal') {
+      // basic card validation
+      const cardNum = (formState.cardNumber || '').replace(/\s+/g, '');
+      const cvc = (formState.cardCVC || '').trim();
+      const expiry = (formState.cardExpiry || '').trim();
+
+      if (!/^[0-9]{13,19}$/.test(cardNum)) {
+        alert('Unesite validan broj kartice (13-19 cifara).');
+        return;
+      }
+
+      if (!/^[0-9]{3,4}$/.test(cvc)) {
+        alert('Unesite validan CVC (3 ili 4 cifre).');
+        return;
+      }
+
+      if (!/^(0[1-9]|1[0-2])\/(?:[0-9]{2}|[0-9]{4})$/.test(expiry)) {
+        alert('Unesite datum isteka u formatu MM/YY ili MM/YYYY.');
+        return;
+      }
+    }
+
     alert('Hvala Vam, Vaša porudžbina je uspešno primljena!');
-    setFormState({
-      firstName: '',
-      lastName: '',
-      deliveryAddress: '',
-      phone: '',
-      email: '',
-      note: '',
-      deliveryTime: '2'
+    onContactChange?.({
+      ...defaultContactValues,
     });
   };
 
@@ -83,6 +105,11 @@ const Contact = () => {
 
         <div className="contact-form-card">
           <h3>Pošaljite nam poruku</h3>
+          {formState.paymentMethod && (
+            <div className="payment-note">
+              Izabrali ste plaćanje <strong>{formState.paymentMethod === 'paypal' ? 'PayPal' : 'pouzećem'}</strong>. Popunite detalje za dostavu.
+            </div>
+          )}
           <form className="contact-form" onSubmit={handleSubmit}>
             <div className="form-row">
               <label>
@@ -140,6 +167,44 @@ const Contact = () => {
                 />
               </label>
             </div>
+
+            {formState.paymentMethod === 'paypal' && (
+              <div className="card-details">
+                <h4>Podaci o kartici (samo demo)</h4>
+                <label>
+                  Broj kartice
+                  <input
+                    type="text"
+                    name="cardNumber"
+                    value={formState.cardNumber}
+                    onChange={handleInputChange}
+                    placeholder="Bez razmaka"
+                  />
+                </label>
+                <div className="form-row">
+                  <label>
+                    Ističe (MM/YY)
+                    <input
+                      type="text"
+                      name="cardExpiry"
+                      value={formState.cardExpiry}
+                      onChange={handleInputChange}
+                      placeholder="MM/YY"
+                    />
+                  </label>
+                  <label>
+                    CVC
+                    <input
+                      type="text"
+                      name="cardCVC"
+                      value={formState.cardCVC}
+                      onChange={handleInputChange}
+                      placeholder="CVC"
+                    />
+                  </label>
+                </div>
+              </div>
+            )}
 
             <label className="form-row-single">
               Napomena (nije obavezno)

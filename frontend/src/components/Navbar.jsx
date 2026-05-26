@@ -1,7 +1,7 @@
 import React from 'react';
 import logo from '../slika_logo.jpg';
 
-const Navbar = ({ activePage, onSelectPage }) => {
+const Navbar = ({ activePage, onSelectPage, onOpenAuth, cartCount, currentUser, onLogout }) => {
   return (
     <header className="site-navbar">
       <div className="navbar-inner">
@@ -58,10 +58,33 @@ const Navbar = ({ activePage, onSelectPage }) => {
           </a>
         </nav>
 
-        <a className="cart-link" href="#cart" aria-label="Korpa">
-          <span className="cart-icon">🛒</span>
-          <span className="cart-text">Korpa</span>
-        </a>
+        <div className="navbar-actions">
+          {currentUser ? (
+            <>
+              <span className="navbar-user">Zdravo, {currentUser.firstName}</span>
+              <button className="logout-button" type="button" onClick={onLogout}>
+                Odjava
+              </button>
+            </>
+          ) : (
+            <button className="login-button" type="button" onClick={() => onOpenAuth('login')}>
+              Prijava
+            </button>
+          )}
+          <a
+            className="cart-link"
+            href="#cart"
+            aria-label="Korpa"
+            onClick={(e) => {
+              e.preventDefault();
+              onSelectPage('cart');
+            }}
+          >
+            <span className="cart-icon">🛒</span>
+            <span className="cart-text">Korpa</span>
+            {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+          </a>
+        </div>
       </div>
     </header>
   );

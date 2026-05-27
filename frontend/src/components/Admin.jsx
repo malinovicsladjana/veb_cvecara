@@ -169,7 +169,17 @@ const Admin = ({ products, orders, users, onCreateProduct, onUpdateProduct, onDe
                           Da
                         </label>
                       ) : (
-                        product.inStock ? 'Da' : 'Ne'
+                        <div className="stock-inline">
+                          <span>{product.inStock ? 'Da' : 'Ne'}</span>
+                          <button
+                            type="button"
+                            className="admin-action-btn"
+                            onClick={() => onUpdateProduct({ ...product, inStock: !product.inStock })}
+                            style={{ marginLeft: 8 }}
+                          >
+                            Promeni
+                          </button>
+                        </div>
                       )}
                     </td>
                     <td className="admin-actions-cell">

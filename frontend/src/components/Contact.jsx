@@ -37,7 +37,6 @@ const Contact = ({ contactValues = defaultContactValues, onContactChange }) => {
     }
 
     if (formState.paymentMethod === 'paypal') {
-      // basic card validation
       const cardNum = (formState.cardNumber || '').replace(/\s+/g, '');
       const cvc = (formState.cardCVC || '').trim();
       const expiry = (formState.cardExpiry || '').trim();

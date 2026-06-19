@@ -1,0 +1,9 @@
+{
+  "name": "veb-cvecara",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "server": "npm --prefix backend run server",
+    "start": "npm --prefix backend start"
+  }
+}

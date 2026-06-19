@@ -9,6 +9,10 @@ import ProductsScreen from './screens/ProductsScreen';
 import CartScreen from './screens/CartScreen';
 import AboutScreen from './screens/AboutScreen';
 import AuthForm from './components/AuthForm';
+import { useDispatch, useSelector } from 'react-redux';
+import { setCredentials, logout } from './slices/authSlice';
+import { addToCart, removeFromCart, clearCart } from './slices/cartSlice';
+import { setProducts, createProduct, updateProduct, deleteProduct } from './slices/productsSlice';
 
 import slika_logo from './slika_logo.jpg';
 import buket4 from './slike/buket4.jpg';
@@ -189,6 +193,10 @@ const productCards = [ // lista proizvoda koji se prikazuju na stranici proizvod
 
 
 function App() {
+  const dispatch = useDispatch();
+  const currentUser = useSelector((state) => state.auth.userInfo);
+  const cartItems = useSelector((state) => state.cart.cartItems);
+  const products = useSelector((state) => state.products.products);
   const [page, setPage] = useState('home');
   const [authMode, setAuthMode] = useState(null);
   const [users, setUsers] = useState([
@@ -200,9 +208,6 @@ function App() {
       isAdmin: true,
     },
   ]);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [products, setProducts] = useState(productCards);
-  const [cartItems, setCartItems] = useState([]);
   const [reviews, setReviews] = useState({});
   const [orders, setOrders] = useState([]);
   const [checkoutMessage, setCheckoutMessage] = useState('');
@@ -221,6 +226,12 @@ function App() {
     cardCVC: '',
   });
 
+  useEffect(() => {
+    if (products.length === 0) {
+      dispatch(setProducts(productCards));
+    }
+  }, [dispatch, products.length]);
+
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const isLoggedIn = Boolean(currentUser);
 
@@ -230,7 +241,7 @@ function App() {
       return { success: false, message: 'Email ili lozinka nisu tačni.' };
     }
 
-    setCurrentUser(user);
+    dispatch(setCredentials(user));
     if (user.isAdmin) {
       setPage('admin');
     }
@@ -259,7 +270,7 @@ function App() {
   };
 
   const handleLogout = () => {
-    setCurrentUser(null);
+    dispatch(logout());
     setPage('home');
   };
 
@@ -274,29 +285,18 @@ function App() {
     }
 
     const quantityToAdd = Math.max(1, Math.min(5, Number(qty) || 1));
+    const cartItem = { ...product, quantity: quantityToAdd };
 
-    setCartItems((prevItems) => {
-      const existingItem = prevItems.find((item) => item.id === product.id);
-      if (existingItem) {
-        const newQty = Math.min(5, existingItem.quantity + quantityToAdd);
-        return prevItems.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: newQty }
-            : item
-        );
-      }
-
-      return [...prevItems, { ...product, quantity: quantityToAdd }];
-    });
+    dispatch(addToCart(cartItem));
     setPage('cart');
   };
 
   const handleRemoveFromCart = (productId) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== productId));
+    dispatch(removeFromCart(productId));
   };
 
   const handleClearCart = () => {
-    setCartItems([]);
+    dispatch(clearCart());
   };
 
   const handleCheckout = (paymentMethod) => {
@@ -368,18 +368,15 @@ function App() {
   };
 
   const handleCreateProduct = (newProduct) => {
-    setProducts((prev) => [
-      { ...newProduct, id: `product-${Date.now()}` },
-      ...prev,
-    ]);
+    dispatch(createProduct({ ...newProduct, id: `product-${Date.now()}` }));
   };
 
   const handleUpdateProduct = (updatedProduct) => {
-    setProducts((prev) => prev.map((item) => (item.id === updatedProduct.id ? updatedProduct : item)));
+    dispatch(updateProduct(updatedProduct));
   };
 
   const handleDeleteProduct = (productId) => {
-    setProducts((prev) => prev.filter((item) => item.id !== productId));
+    dispatch(deleteProduct(productId));
   };
 
   const handleUpdateOrderStatus = (orderId, status) => {

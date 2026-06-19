@@ -3,6 +3,8 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/db');
+const userRoutes = require('./routes/userRoutes');
+const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
@@ -16,6 +18,11 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/', (req, res) => {
   res.send('API je pokrenut');
 });
+
+app.use('/api/users', userRoutes);
+
+app.use(notFound);
+app.use(errorHandler);
 
 const startServer = async () => {
   await connectDB();

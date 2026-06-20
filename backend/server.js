@@ -4,6 +4,8 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
+const productRoutes = require('./routes/productRoutes');
+const orderRoutes = require('./routes/orderRoutes');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
@@ -20,6 +22,8 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/users', userRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/orders', orderRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

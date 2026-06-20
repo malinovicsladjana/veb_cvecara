@@ -41,13 +41,18 @@ const Admin = ({ products, orders, users, onCreateProduct, onUpdateProduct, onDe
     cancelEditing();
   };
 
-  const handleNextOrderStatus = (order) => {
-    const nextStatus = order.status === 'Novo'
-      ? 'U obradi'
-      : order.status === 'U obradi'
-      ? 'Završeno'
-      : 'Završeno';
-    onUpdateOrderStatus(order.id, nextStatus);
+  const handleDeleteProductConfirm = (productId) => {
+    if (window.confirm('Da li ste sigurni da želite obrisati ovaj proizvod?')) {
+      onDeleteProduct(productId);
+    }
+  };
+
+  const handleDeliverOrder = (order) => {
+    if (order.status === 'Završeno') return;
+
+    if (window.confirm('Označite ovu narudžbinu kao isporučenu?')) {
+      onUpdateOrderStatus(order.id);
+    }
   };
 
   return (
@@ -197,7 +202,7 @@ const Admin = ({ products, orders, users, onCreateProduct, onUpdateProduct, onDe
                           <button className="admin-action-btn" onClick={() => startEditing(product)}>
                             Izmeni
                           </button>
-                          <button className="admin-action-btn admin-action-delete" onClick={() => onDeleteProduct(product.id)}>
+                          <button className="admin-action-btn admin-action-delete" onClick={() => handleDeleteProductConfirm(product.id)}>
                             Obriši
                           </button>
                         </>
@@ -246,8 +251,12 @@ const Admin = ({ products, orders, users, onCreateProduct, onUpdateProduct, onDe
                       </td>
                       <td>{order.date}</td>
                       <td>
-                        <button className="admin-action-btn" onClick={() => handleNextOrderStatus(order)}>
-                          {order.status === 'Završeno' ? 'Završeno' : 'Sledeći'}
+                        <button
+                          className="admin-action-btn"
+                          disabled={order.status === 'Završeno'}
+                          onClick={() => handleDeliverOrder(order)}
+                        >
+                          {order.status === 'Završeno' ? 'Završeno' : 'Označi kao isporučeno'}
                         </button>
                       </td>
                     </tr>

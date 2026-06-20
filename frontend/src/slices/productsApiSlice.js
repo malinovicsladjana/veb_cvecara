@@ -14,14 +14,46 @@ export const productsApiSlice = apiSlice.injectEndpoints({
     getProducts: builder.query({
       query: () => PRODUCT_URL,
       transformResponse: (response) => response.map(transformProduct),
-      providesTags: ['Product'],
+      providesTags: (result) =>
+        result
+          ? [...result.map(({ id }) => ({ type: 'Product', id })), { type: 'Product', id: 'LIST' }]
+          : [{ type: 'Product', id: 'LIST' }],
     }),
     getProductDetails: builder.query({
       query: (productId) => `${PRODUCT_URL}/${productId}`,
       transformResponse: transformProduct,
       providesTags: (result, error, arg) => [{ type: 'Product', id: arg }],
     }),
+    createProduct: builder.mutation({
+      query: (product) => ({
+        url: PRODUCT_URL,
+        method: 'POST',
+        body: product,
+      }),
+      invalidatesTags: [{ type: 'Product', id: 'LIST' }],
+    }),
+    updateProduct: builder.mutation({
+      query: ({ productId, data }) => ({
+        url: `${PRODUCT_URL}/${productId}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: (result, error, arg) => [{ type: 'Product', id: arg.productId }, { type: 'Product', id: 'LIST' }],
+    }),
+    deleteProduct: builder.mutation({
+      query: (productId) => ({
+        url: `${PRODUCT_URL}/${productId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: [{ type: 'Product', id: 'LIST' }],
+    }),
   }),
 });
 
-export const { useGetProductsQuery, useGetProductDetailsQuery } = productsApiSlice;
+export const {
+  useGetProductsQuery,
+  useGetProductDetailsQuery,
+  useCreateProductMutation,
+  useUpdateProductMutation,
+  useDeleteProductMutation,
+} = productsApiSlice;

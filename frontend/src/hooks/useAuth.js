@@ -1,4 +1,4 @@
-import { useLoginMutation, useRegisterMutation, useGetUserProfileQuery } from '../slices/usersApiSlice';
+import { useLoginMutation, useRegisterMutation } from '../slices/usersApiSlice';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '../slices/authSlice';
 

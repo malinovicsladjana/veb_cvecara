@@ -10,11 +10,11 @@ import CartScreen from './screens/CartScreen';
 import AboutScreen from './screens/AboutScreen';
 import AuthForm from './components/AuthForm';
 import { useDispatch, useSelector } from 'react-redux';
-import { setCredentials, logout } from './slices/authSlice';
+import { logout } from './slices/authSlice';
 import { addToCart, removeFromCart, clearCart } from './slices/cartSlice';
-import { setProducts, createProduct, updateProduct, deleteProduct } from './slices/productsSlice';
-import { useGetProductsQuery } from './slices/productsApiSlice';
-import { useCreateOrderMutation } from './slices/ordersApiSlice';
+import { setProducts } from './slices/productsSlice';
+import { useGetProductsQuery, useCreateProductMutation, useUpdateProductMutation, useDeleteProductMutation } from './slices/productsApiSlice';
+import { useCreateOrderMutation, useGetOrdersQuery, useDeliverOrderMutation } from './slices/ordersApiSlice';
 import { useAuth } from './hooks/useAuth';
 
 import slika_logo from './slika_logo.jpg';
@@ -202,7 +202,7 @@ function App() {
   const products = useSelector((state) => state.products.products);
   const [page, setPage] = useState('home');
   const [authMode, setAuthMode] = useState(null);
-  const [users, setUsers] = useState([
+  const [users] = useState([
     {
       firstName: 'Admin',
       lastName: 'Bloom',
@@ -212,7 +212,6 @@ function App() {
     },
   ]);
   const [reviews, setReviews] = useState({});
-  const [orders, setOrders] = useState([]);
   const [checkoutMessage, setCheckoutMessage] = useState('');
   const [isChoosingPayment, setIsChoosingPayment] = useState(false);
   const [contactValues, setContactValues] = useState({
@@ -230,6 +229,8 @@ function App() {
   });
 
   const { data: productsData } = useGetProductsQuery();
+  const { data: ordersData } = useGetOrdersQuery(undefined, { skip: !currentUser?.isAdmin });
+  const displayedOrders = ordersData || [];
 
   useEffect(() => {
     if (productsData && productsData.length > 0) {
@@ -361,22 +362,59 @@ function App() {
     });
   };
 
-  const handleCreateProduct = (newProduct) => {
-    dispatch(createProduct({ ...newProduct, id: `product-${Date.now()}` }));
+  const handleCreateProduct = async (newProduct) => {
+    try {
+      await createProductApi({
+        name: newProduct.title,
+        category: newProduct.category,
+        image: newProduct.image || '/images/sample.jpg',
+        price: Number(String(newProduct.price).replace(/[^\d.-]/g, '')) || 0,
+        countInStock: newProduct.inStock ? 1 : 0,
+        description: newProduct.description || '',
+      }).unwrap();
+    } catch (err) {
+      console.error('Greška pri kreiranju proizvoda', err);
+    }
   };
 
-  const handleUpdateProduct = (updatedProduct) => {
-    dispatch(updateProduct(updatedProduct));
+  const handleUpdateProduct = async (updatedProduct) => {
+    try {
+      await updateProductApi({
+        productId: updatedProduct.id,
+        data: {
+          name: updatedProduct.title,
+          category: updatedProduct.category,
+          image: updatedProduct.image || '/images/sample.jpg',
+          price: Number(String(updatedProduct.price).replace(/[^\d.-]/g, '')) || 0,
+          countInStock: updatedProduct.inStock ? 1 : 0,
+          description: updatedProduct.description || '',
+        },
+      }).unwrap();
+    } catch (err) {
+      console.error('Greška pri izmeni proizvoda', err);
+    }
   };
 
-  const handleDeleteProduct = (productId) => {
-    dispatch(deleteProduct(productId));
+  const handleDeleteProduct = async (productId) => {
+    try {
+      await deleteProductApi(productId).unwrap();
+    } catch (err) {
+      console.error('Greška pri brisanju proizvoda', err);
+    }
   };
 
-  const handleUpdateOrderStatus = (orderId, status) => {
-    setOrders((prev) => prev.map((order) => (order.id === orderId ? { ...order, status } : order)));
+  const handleUpdateOrderStatus = async (orderId) => {
+    try {
+      await deliverOrder(orderId).unwrap();
+    } catch (err) {
+      console.error('Greška prilikom isporuke narudžbine', err);
+    }
   };
 
+  const [createProductApi] = useCreateProductMutation();
+  const [updateProductApi] = useUpdateProductMutation();
+  const [deleteProductApi] = useDeleteProductMutation();
+  const [deliverOrder] = useDeliverOrderMutation();
   const [createOrder] = useCreateOrderMutation();
 
   const handleSubmitOrder = async (orderInfo) => {
@@ -455,7 +493,7 @@ function App() {
         {page === 'admin' && currentUser?.isAdmin && (
           <Admin
             products={products}
-            orders={orders}
+            orders={displayedOrders}
             users={users}
             onCreateProduct={handleCreateProduct}
             onUpdateProduct={handleUpdateProduct}

@@ -14,7 +14,7 @@ const defaultContactValues = {
   cardCVC: '',
 };
 
-const Contact = ({ contactValues = defaultContactValues, onContactChange }) => {
+const Contact = ({ contactValues = defaultContactValues, onContactChange, onSubmitOrder }) => {
   const formState = { ...defaultContactValues, ...contactValues };
 
   const handleInputChange = (event) => {
@@ -57,10 +57,27 @@ const Contact = ({ contactValues = defaultContactValues, onContactChange }) => {
       }
     }
 
-    alert('Hvala Vam, Vaša porudžbina je uspešno primljena!');
-    onContactChange?.({
-      ...defaultContactValues,
-    });
+    const orderData = {
+      shippingAddress: {
+        firstName: formState.firstName,
+        lastName: formState.lastName,
+        deliveryAddress: formState.deliveryAddress,
+        phone: formState.phone,
+        email: formState.email,
+        note: formState.note,
+        deliveryTime: formState.deliveryTime,
+      },
+      paymentMethod: formState.paymentMethod || 'pouzece',
+    };
+
+    if (typeof onSubmitOrder === 'function') {
+      onSubmitOrder(orderData);
+    } else {
+      alert('Hvala Vam, Vaša porudžbina je uspešno primljena!');
+      onContactChange?.({
+        ...defaultContactValues,
+      });
+    }
   };
 
   return (

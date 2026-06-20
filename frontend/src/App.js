@@ -13,6 +13,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setCredentials, logout } from './slices/authSlice';
 import { addToCart, removeFromCart, clearCart } from './slices/cartSlice';
 import { setProducts, createProduct, updateProduct, deleteProduct } from './slices/productsSlice';
+import { useGetProductsQuery } from './slices/productsApiSlice';
+import { useCreateOrderMutation } from './slices/ordersApiSlice';
+import { useAuth } from './hooks/useAuth';
 
 import slika_logo from './slika_logo.jpg';
 import buket4 from './slike/buket4.jpg';
@@ -226,47 +229,38 @@ function App() {
     cardCVC: '',
   });
 
+  const { data: productsData } = useGetProductsQuery();
+
   useEffect(() => {
-    if (products.length === 0) {
+    if (productsData && productsData.length > 0) {
+      dispatch(setProducts(productsData));
+    } else if (products.length === 0) {
       dispatch(setProducts(productCards));
     }
-  }, [dispatch, products.length]);
+  }, [dispatch, productsData, products.length]);
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const isLoggedIn = Boolean(currentUser);
 
-  const handleLogin = (email, password) => {
-    const user = users.find((item) => item.email === email && item.password === password);
-    if (!user) {
-      return { success: false, message: 'Email ili lozinka nisu tačni.' };
-    }
+  const { loginUser, registerUser } = useAuth();
 
-    dispatch(setCredentials(user));
-    if (user.isAdmin) {
-      setPage('admin');
+  const handleLogin = async (email, password) => {
+    try {
+      const res = await loginUser(email, password);
+      if (res.success) setPage('home');
+      return res;
+    } catch (err) {
+      return { success: false, message: err?.data?.message || err?.message || 'Greška pri prijavi' };
     }
-    return { success: true, message: 'Uspešno ste se prijavili.' };
   };
 
-  const handleRegister = (firstName, lastName, email, password) => {
-    const normalizedEmail = email.toLowerCase();
-
-    if (users.some((item) => item.email === normalizedEmail)) {
-      return { success: false, message: 'Email je već registrovan.' };
+  const handleRegister = async (firstName, lastName, email, password) => {
+    try {
+      const res = await registerUser(firstName, lastName, email, password);
+      return res;
+    } catch (err) {
+      return { success: false, message: err?.data?.message || err?.message || 'Greška pri registraciji' };
     }
-
-    const newUser = {
-      firstName,
-      lastName,
-      email: normalizedEmail,
-      password,
-      isAdmin: false,
-    };
-
-    setUsers((prev) => [...prev, newUser]);
-    setCurrentUser(newUser);
-
-    return { success: true, message: 'Uspešno ste se registrovali.' };
   };
 
   const handleLogout = () => {
@@ -383,6 +377,41 @@ function App() {
     setOrders((prev) => prev.map((order) => (order.id === orderId ? { ...order, status } : order)));
   };
 
+  const [createOrder] = useCreateOrderMutation();
+
+  const handleSubmitOrder = async (orderInfo) => {
+    if (!currentUser || cartItems.length === 0) return;
+
+    const orderItems = cartItems.map((item) => ({
+      name: item.title || item.name,
+      qty: item.quantity,
+      image: item.image,
+      price: Number(String(item.price).replace(/[^\d.-]/g, '')) || 0,
+      product: item.id,
+    }));
+
+    const payload = {
+      orderItems,
+      shippingAddress: orderInfo.shippingAddress,
+      paymentMethod: orderInfo.paymentMethod,
+      itemsPrice: orderItems.reduce((s, it) => s + it.price * it.qty, 0),
+      shippingPrice: 0,
+      taxPrice: 0,
+      totalPrice: orderItems.reduce((s, it) => s + it.price * it.qty, 0),
+    };
+
+    try {
+      const res = await createOrder(payload).unwrap();
+      dispatch(clearCart());
+      setCheckoutMessage('Porudžbina je uspešno kreirana.');
+      setPage('home');
+      return res;
+    } catch (err) {
+      setCheckoutMessage('Greška pri kreiranju porudžbine.');
+      return null;
+    }
+  };
+
   return (
     <div className="app-shell">
       <Navbar
@@ -408,7 +437,7 @@ function App() {
           />
         )}
         {page === 'about' && <AboutScreen />}
-        {page === 'contact' && <Contact contactValues={contactValues} onContactChange={handleContactChange} />}
+        {page === 'contact' && <Contact contactValues={contactValues} onContactChange={handleContactChange} onSubmitOrder={handleSubmitOrder} />}
         {page === 'cart' && (
           <CartScreen
             cartItems={cartItems}

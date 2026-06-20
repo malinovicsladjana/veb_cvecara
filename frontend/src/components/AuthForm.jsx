@@ -70,17 +70,31 @@ export default function AuthForm({ mode, onSwitchMode, onClose, onLogin, onRegis
       password: values.password,
     };
 
-    const result = isLogin
+    const call = isLogin
       ? onLogin(normalizedEmail, credentials.password)
       : onRegister(credentials.firstName, credentials.lastName, normalizedEmail, credentials.password);
 
-    setSubmitResult(result);
-    setMessage(result.message);
-
-    if (result.success) {
-      setTimeout(() => {
-        onClose();
-      }, 500);
+    if (call && typeof call.then === 'function') {
+      // async function returned (API call)
+      call
+        .then((result) => {
+          setSubmitResult(result);
+          setMessage(result.message);
+          if (result && result.success) {
+            setTimeout(() => onClose(), 500);
+          }
+        })
+        .catch((err) => {
+          setSubmitResult({ success: false });
+          setMessage(err?.data?.message || err?.message || 'Greška');
+        });
+    } else {
+      // synchronous result
+      setSubmitResult(call);
+      setMessage(call?.message);
+      if (call && call.success) {
+        setTimeout(() => onClose(), 500);
+      }
     }
   };
 

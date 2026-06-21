@@ -9,12 +9,13 @@ import ProductsScreen from './screens/ProductsScreen';
 import CartScreen from './screens/CartScreen';
 import AboutScreen from './screens/AboutScreen';
 import AuthForm from './components/AuthForm';
+import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from './slices/authSlice';
 import { addToCart, removeFromCart, clearCart } from './slices/cartSlice';
 import { setProducts } from './slices/productsSlice';
 import { useGetProductsQuery, useCreateProductMutation, useUpdateProductMutation, useDeleteProductMutation } from './slices/productsApiSlice';
-import { useCreateOrderMutation, useGetOrdersQuery, useDeliverOrderMutation } from './slices/ordersApiSlice';
+import { useCreateOrderMutation, useGetOrdersQuery, useGetPaypalClientIdQuery, usePayOrderMutation, useDeliverOrderMutation } from './slices/ordersApiSlice';
 import { useAuth } from './hooks/useAuth';
 
 import slika_logo from './slika_logo.jpg';
@@ -214,6 +215,9 @@ function App() {
   const [reviews, setReviews] = useState({});
   const [checkoutMessage, setCheckoutMessage] = useState('');
   const [isChoosingPayment, setIsChoosingPayment] = useState(false);
+  const [pendingPaymentOrder, setPendingPaymentOrder] = useState(null);
+  const [paypalStatus, setPaypalStatus] = useState('');
+  const [paypalError, setPaypalError] = useState('');
   const [contactValues, setContactValues] = useState({
     firstName: '',
     lastName: '',
@@ -416,6 +420,8 @@ function App() {
   const [deleteProductApi] = useDeleteProductMutation();
   const [deliverOrder] = useDeliverOrderMutation();
   const [createOrder] = useCreateOrderMutation();
+  const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
+  const { data: paypalConfig, isLoading: loadingPayPal, error: errorPayPal } = useGetPaypalClientIdQuery(undefined, { skip: !pendingPaymentOrder });
 
   const handleSubmitOrder = async (orderInfo) => {
     if (!currentUser || cartItems.length === 0) return;
@@ -440,6 +446,14 @@ function App() {
 
     try {
       const res = await createOrder(payload).unwrap();
+
+      if (orderInfo.paymentMethod === 'paypal') {
+        setPendingPaymentOrder(res);
+        setPaypalStatus('Porudžbina je kreirana. Nastavite sa plaćanjem preko PayPal-a.');
+        setPaypalError('');
+        return res;
+      }
+
       dispatch(clearCart());
       setCheckoutMessage('Porudžbina je uspešno kreirana.');
       setPage('home');
@@ -450,9 +464,63 @@ function App() {
     }
   };
 
+  useEffect(() => {
+    if (!pendingPaymentOrder) return;
+
+    if (errorPayPal) {
+      setPaypalError('PayPal nije dostupan. Proverite konfiguraciju.');
+      return;
+    }
+
+    if (!loadingPayPal && paypalConfig?.clientId) {
+      setPaypalError('');
+    }
+  }, [pendingPaymentOrder, paypalConfig, errorPayPal, loadingPayPal]);
+
+  const handlePayPalError = (error) => {
+    console.error('PayPal greška:', error);
+    setPaypalError('Greška prilikom PayPal plaćanja. Pokušajte ponovo.');
+  };
+
+  const createPayPalOrder = (data, actions) => {
+    const amountEUR = ((pendingPaymentOrder?.totalPrice || 0) / 117.2).toFixed(2);
+    return actions.order.create({
+      purchase_units: [
+        {
+          amount: {
+            value: amountEUR,
+          },
+        },
+      ],
+    });
+  };
+
+  const handlePayPalApprove = async (data, actions) => {
+    try {
+      const details = await actions.order.capture();
+      await payOrder({ orderId: pendingPaymentOrder._id, paymentResult: details }).unwrap();
+      dispatch(clearCart());
+      setCheckoutMessage('Porudžbina je uspešno plaćena putem PayPal-a.');
+      setPaypalStatus('');
+      setPendingPaymentOrder(null);
+      setPage('home');
+    } catch (err) {
+      setPaypalError('Greška prilikom završetka PayPal plaćanja.');
+      console.error(err);
+    }
+  };
+
+  const handlePayPalCancel = () => {
+    setPaypalStatus('PayPal plaćanje je otkazano.');
+  };
+
+  const handlePayPalFailed = () => {
+    setPaypalError('PayPal plaćanje nije uspelo.');
+  };
+
   return (
-    <div className="app-shell">
-      <Navbar
+      <div className="app-shell">
+        <Navbar
         activePage={page}
         onSelectPage={setPage}
         onOpenAuth={setAuthMode}
@@ -475,7 +543,43 @@ function App() {
           />
         )}
         {page === 'about' && <AboutScreen />}
-        {page === 'contact' && <Contact contactValues={contactValues} onContactChange={handleContactChange} onSubmitOrder={handleSubmitOrder} />}
+        {page === 'contact' && (
+          <>
+            <Contact
+              contactValues={contactValues}
+              onContactChange={handleContactChange}
+              onSubmitOrder={handleSubmitOrder}
+              isSubmitDisabled={Boolean(pendingPaymentOrder)}
+            />
+            {pendingPaymentOrder && (
+              <section className="paypal-payment-section">
+                <div className="section-headline">
+                  <p className="eyebrow">PayPal</p>
+                  <h2>Plaćanje narudžbine</h2>
+                </div>
+                {paypalError && <div className="auth-message auth-error">{paypalError}</div>}
+                {paypalStatus && <div className="auth-message auth-success">{paypalStatus}</div>}
+                {!paypalConfig?.clientId && !loadingPayPal && !paypalError && (
+                  <div className="auth-message auth-error">
+                    PayPal client ID nije podešen. Plaćanje putem PayPal-a nije dostupno.
+                  </div>
+                )}
+                {paypalConfig?.clientId && (
+                  <div className="paypal-buttons-wrapper">
+                    <PayPalScriptProvider options={{ 'client-id': paypalConfig.clientId, currency: 'EUR' }}>
+                      <PayPalButtons
+                        createOrder={createPayPalOrder}
+                        onApprove={handlePayPalApprove}
+                        onCancel={handlePayPalCancel}
+                        onError={handlePayPalError}
+                      />
+                    </PayPalScriptProvider>
+                  </div>
+                )}
+              </section>
+            )}
+          </>
+        )}
         {page === 'cart' && (
           <CartScreen
             cartItems={cartItems}

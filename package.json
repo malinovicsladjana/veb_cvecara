@@ -4,6 +4,10 @@
   "private": true,
   "scripts": {
     "server": "npm --prefix backend run server",
-    "start": "npm --prefix backend start"
+    "start": "npm --prefix backend start",
+    "dev": "concurrently \"npm --prefix backend run server\" \"npm --prefix frontend start\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }

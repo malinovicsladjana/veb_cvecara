@@ -21,9 +21,20 @@ app.get('/', (req, res) => {
   res.send('API je pokrenut');
 });
 
+app.get('/api/config/paypal', (req, res) => {
+  res.send({ clientId: process.env.PAYPAL_CLIENT_ID || '' });
+});
+app.get('/config/paypal', (req, res) => {
+  res.send({ clientId: process.env.PAYPAL_CLIENT_ID || '' });
+});
+
+// Alias routes for clients that send requests without /api prefix
 app.use('/api/users', userRoutes);
+app.use('/users', userRoutes);
 app.use('/api/products', productRoutes);
+app.use('/products', productRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/orders', orderRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

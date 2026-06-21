@@ -14,7 +14,7 @@ const defaultContactValues = {
   cardCVC: '',
 };
 
-const Contact = ({ contactValues = defaultContactValues, onContactChange, onSubmitOrder }) => {
+const Contact = ({ contactValues = defaultContactValues, onContactChange, onSubmitOrder, isSubmitDisabled = false }) => {
   const formState = { ...defaultContactValues, ...contactValues };
 
   const handleInputChange = (event) => {
@@ -34,27 +34,6 @@ const Contact = ({ contactValues = defaultContactValues, onContactChange, onSubm
       !formState.deliveryTime
     ) {
       return;
-    }
-
-    if (formState.paymentMethod === 'paypal') {
-      const cardNum = (formState.cardNumber || '').replace(/\s+/g, '');
-      const cvc = (formState.cardCVC || '').trim();
-      const expiry = (formState.cardExpiry || '').trim();
-
-      if (!/^[0-9]{13,19}$/.test(cardNum)) {
-        alert('Unesite validan broj kartice (13-19 cifara).');
-        return;
-      }
-
-      if (!/^[0-9]{3,4}$/.test(cvc)) {
-        alert('Unesite validan CVC (3 ili 4 cifre).');
-        return;
-      }
-
-      if (!/^(0[1-9]|1[0-2])\/(?:[0-9]{2}|[0-9]{4})$/.test(expiry)) {
-        alert('Unesite datum isteka u formatu MM/YY ili MM/YYYY.');
-        return;
-      }
     }
 
     const orderData = {
@@ -184,44 +163,6 @@ const Contact = ({ contactValues = defaultContactValues, onContactChange, onSubm
               </label>
             </div>
 
-            {formState.paymentMethod === 'paypal' && (
-              <div className="card-details">
-                <h4>Podaci o kartici (samo demo)</h4>
-                <label>
-                  Broj kartice
-                  <input
-                    type="text"
-                    name="cardNumber"
-                    value={formState.cardNumber}
-                    onChange={handleInputChange}
-                    placeholder="Bez razmaka"
-                  />
-                </label>
-                <div className="form-row">
-                  <label>
-                    Ističe (MM/YY)
-                    <input
-                      type="text"
-                      name="cardExpiry"
-                      value={formState.cardExpiry}
-                      onChange={handleInputChange}
-                      placeholder="MM/YY"
-                    />
-                  </label>
-                  <label>
-                    CVC
-                    <input
-                      type="text"
-                      name="cardCVC"
-                      value={formState.cardCVC}
-                      onChange={handleInputChange}
-                      placeholder="CVC"
-                    />
-                  </label>
-                </div>
-              </div>
-            )}
-
             <label className="form-row-single">
               Napomena (nije obavezno)
               <textarea
@@ -276,7 +217,9 @@ const Contact = ({ contactValues = defaultContactValues, onContactChange, onSubm
               </label>
             </fieldset>
 
-            <button type="submit">Pošalji</button>
+            <button type="submit" disabled={isSubmitDisabled}>
+              {isSubmitDisabled ? 'Čekanje PayPal plaćanja...' : 'Pošalji'}
+            </button>
           </form>
         </div>
       </div>
